@@ -38,7 +38,7 @@ RUN opam exec -- dune runtest
 RUN opam exec -- dune clean
 # UGH. stop dune from complaining
 RUN rm -rf comby
-RUN opam exec -- dune build --profile release
+RUN opam exec -- dune build --profile release src/main.exe
 
 ###################################################
 ### Binary distribution on minimal alpine image ###

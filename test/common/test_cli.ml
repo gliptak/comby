@@ -830,6 +830,33 @@ let%expect_test "zip_exclude_file" =
   print_string result;
   [%expect {| |}]
 
+(* Exercise the parallel (parany) pipeline: no -sequential flag. *)
+let%expect_test "parallel_paths" =
+  let dir = "example" ^/ "zip-test" ^/ "sample-repo" ^/ "src" in
+  let command_args = Format.sprintf "'main' 'pain' .go -jobs 2 -d %s -diff" dir in
+  let command = Format.sprintf "%s %s" binary_path command_args in
+  let result = read_output command in
+  print_endline (Bool.to_string (String.is_substring result ~substring:"+func pain() {}"));
+  [%expect {| true |}]
+
+let%expect_test "parallel_zip" =
+  let zip = "example" ^/ "zip-test" ^/ "sample-repo.zip" in
+  let command_args =
+    Format.sprintf "'main' 'pain' .go -jobs 2 -zip %s -exclude-dir vendor,ignore-this -diff" zip
+  in
+  let command = Format.sprintf "%s %s" binary_path command_args in
+  let result = read_output command in
+  print_endline (Bool.to_string (String.is_substring result ~substring:"+func pain() {}"));
+  [%expect {| true |}]
+
+let%expect_test "parallel_paths_stats_and_count" =
+  let dir = "example" ^/ "zip-test" ^/ "sample-repo" ^/ "src" in
+  let command_args = Format.sprintf "'main' 'pain' .go -jobs 2 -d %s -match-only -stats" dir in
+  let command = Format.sprintf "%s %s" binary_path command_args in
+  let result = read_output command in
+  print_endline (Bool.to_string (String.is_substring result ~substring:"\"number_of_matches\": 1"));
+  [%expect {| true |}]
+
 let%expect_test "invalid_path_with_error_message" =
   let source = "doesn't matter" in
   let command_args = Format.sprintf "'a' 'b' ./invalid/path" in
